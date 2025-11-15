@@ -13,8 +13,8 @@ struct PackageTemplate {
                     import Server
                     import plate
 
-                    let config = ServerConfig.externallyManagedProcess()
-                    let logger = try? StandardLogger(name: config.name)
+                    let config = ServerConfig.externallyManagedProcess(logLevel: .info)
+                    let logger = try? StandardLogger(name: config.name, minimumLevel: config.logLevel)
                     """
                 ),
                 TemplateFile(
