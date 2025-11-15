@@ -86,8 +86,8 @@ func createPackage(config: PackageConfig, skipConfirm: Bool) async throws {
     
     print("\nPackage created successfully!".ansi(.green))
     print("cd \(config.versionPath.path)")
-    print("vim Package.swift  (add dependencies)")
-    print("swuild\n")
+    // print("vim Package.swift  (add dependencies)")
+    // print("swuild\n")
 }
 
 private func generatePackageSwift(
