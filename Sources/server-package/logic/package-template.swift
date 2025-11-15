@@ -11,8 +11,10 @@ struct PackageTemplate {
                     path: .init(["Sources", config.name]),
                     content: """
                     import Server
+                    import plate
 
                     let config = ServerConfig.externallyManagedProcess()
+                    let logger = try? StandardLogger(name: config.name)
                     """
                 ),
                 TemplateFile(
@@ -26,7 +28,8 @@ struct PackageTemplate {
                         static func main() async throws {
                             let process = ServerProcess(
                                 config: config,
-                                routes: try routes()
+                                routes: try routes(),
+                                logger: logger
                             )
                             await process.run()
                         }
