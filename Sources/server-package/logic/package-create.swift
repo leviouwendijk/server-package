@@ -119,6 +119,9 @@ private func generatePackageSwift(
             // .package(url: "https://github.com/leviouwendijk/Vaporized.git", branch: "master"),
 
             // .package(url: "https://github.com/apple/pkl-swift", from: "0.2.1"),
+
+            // .package(url: "https://github.com/awslabs/aws-sdk-swift", from: "1.0.0"),
+            // .package(url: "https://github.com/smithy-lang/smithy-swift", from: "0.166.0"),
         ],
         targets: [
             .executableTarget(
@@ -137,6 +140,19 @@ private func generatePackageSwift(
                     // .product(name: "Vaporized", package: "Vaporized"),
 
                     // .product(name: "PklSwift", package: "pkl-swift"),
+
+                    // .product(name: "AWSBedrock", package: "aws-sdk-swift"),
+                    // .product(name: "AWSBedrockRuntime", package: "aws-sdk-swift"),
+                    // .product(name: "Smithy", package: "smithy-swift"),
+                    // .product(name: "SmithyJSON", package: "smithy-swift"),
+
+                    // .product(name: "AWSSESv2", package: "aws-sdk-swift"),
+                    // .product(name: "AWSClientRuntime", package: "aws-sdk-swift"),
+                    // .product(name: "AWSSDKIdentity", package: "aws-sdk-swift"),
+                    // .product(name: "AWSSDKHTTPAuth", package: "aws-sdk-swift"),
+                    // .product(name: "SmithyHTTPAPI", package: "smithy-swift"),
+                    // .product(name: "SmithyHTTPClient", package: "smithy-swift"),
+                    // .product(name: "AWSSTS", package: "aws-sdk-swift"),
                 ]
             ),
         ]
