@@ -8,7 +8,7 @@ struct PackageTemplate {
             files: [
                 TemplateFile(
                     name: "state.swift",
-                    path: .init(["Sources", config.capitalizedName]),
+                    path: .init(["Sources", config.name]),
                     content: """
                     import Server
 
@@ -17,7 +17,7 @@ struct PackageTemplate {
                 ),
                 TemplateFile(
                     name: "runtime.swift",
-                    path: .init(["Sources", config.capitalizedName]),
+                    path: .init(["Sources", config.name]),
                     content: """
                     import Server
 
@@ -35,7 +35,7 @@ struct PackageTemplate {
                 ),
                 TemplateFile(
                     name: "routes.swift",
-                    path: .init(["Sources", config.capitalizedName]),
+                    path: .init(["Sources", config.name]),
                     content: """
                     // import Foundation
                     import Server
@@ -102,14 +102,14 @@ struct PackageTemplate {
                 ),
                 TemplateFile(
                     name: "model.swift",
-                    path: .init(["Sources", config.capitalizedName, "objects", "model"]),
+                    path: .init(["Sources", config.name, "objects", "model"]),
                     content: """
                     public enum Model {}
                     """
                 ),
                 TemplateFile(
                     name: "operation.swift",
-                    path: .init(["Sources", config.capitalizedName, "objects", "operation"]),
+                    path: .init(["Sources", config.name, "objects", "operation"]),
                     content: """
                     public enum Operation {}
                     """

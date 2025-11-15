@@ -34,7 +34,7 @@ func createPackage(config: PackageConfig, skipConfirm: Bool) async throws {
     
     let result = try await shell.run(
         "/usr/bin/swift",
-        ["package", "init", "--type", "executable", "--name", config.capitalizedName],
+        ["package", "init", "--type", "executable", "--name", config.name],
         options: opts
     )
     
@@ -46,8 +46,8 @@ func createPackage(config: PackageConfig, skipConfirm: Bool) async throws {
 
     let defaultFile = config.versionPath
         .appendingPathComponent("Sources")
-        .appendingPathComponent(config.capitalizedName)
-        .appendingPathComponent("\(config.capitalizedName).swift")
+        .appendingPathComponent(config.name)
+        .appendingPathComponent("\(config.name).swift")
 
     try? FileManager.default.removeItem(at: defaultFile)
     print("✓ Removed default file".ansi(.green))
@@ -65,7 +65,7 @@ func createPackage(config: PackageConfig, skipConfirm: Bool) async throws {
     // Generate new Package.swift
     let packageContent = generatePackageSwift(
         toolsVersionLine: String(toolsVersionLine),
-        packageName: config.capitalizedName,
+        packageName: config.name,
         macosVersion: "13"
     )
     

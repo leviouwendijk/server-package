@@ -8,8 +8,10 @@ struct PackageWizard {
         
         let name = try promptForName()
         let version = try promptForVersion()
+
+        let config = PackageConfig(name: name, version: version)
         
-        displaySummary(name: name, version: version)
+        displaySummary(config: config)
         let confirmed = try promptConfirm()
         
         guard confirmed else {
@@ -17,16 +19,15 @@ struct PackageWizard {
             return
         }
         
-        let config = PackageConfig(name: name, version: version)
         try await createPackage(config: config, skipConfirm: true)
     }
     
     private func promptForName() throws -> String {
-        print("Package name (lowercase): ", terminator: "")
+        print("Package name: ", terminator: "")
         guard let input = readLine(), !input.trimmingCharacters(in: .whitespaces).isEmpty else {
             throw ValidationError("Package name required")
         }
-        return input.lowercased()
+        return input
     }
     
     private func promptForVersion() throws -> Int {
@@ -40,11 +41,11 @@ struct PackageWizard {
         return 1
     }
     
-    private func displaySummary(name: String, version: Int) {
+    private func displaySummary(config: PackageConfig) {
         print("\n" + "Package Summary:".ansi(.bold))
-        print("  Name: \(name)")
-        print("  Version: v\(version)")
-        print("  Path: \(name)/v\(version)/")
+        print("  Name: \(config.name)")
+        print("  Version: v\(config.version)")
+        print("  Path: \(config.confirmable)")
     }
     
     private func promptConfirm() throws -> Bool {

@@ -1,0 +1,19 @@
+uuid = "DA7D936B-C64F-443E-81F3-53792DCAF535"
+name = "server-package"
+types {
+    "binary"
+}
+versions {
+    release {
+        major = 0
+        minor = 1
+        patch = 0
+    }
+}
+compile {
+    use = false
+    arguments {  }
+}
+details = "package initializer for Server-based binary"
+author = "leviouwendijk"
+update = "https://raw.githubusercontent.com/leviouwendijk/server-package/master/build-object.pkl"
