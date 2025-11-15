@@ -13,14 +13,21 @@ This tool was devised for:
 Therefore, for now, note that it has an opinionated default partitioning tree:
 
 ```
-myserver (your provided app-name in lowercase)
-└── v1 (your provided version)
-    ├── context_index.txt
-    ├── crypter_v4.txt
-    ├── interfaces.txt
-    ├── plate.txt
-    ├── server_package_binary.txt
-    └── subtask.txt
+.
+└── myapi
+    └── v2
+        ├── Package.swift
+        ├── Package.swift_previous_version.bak
+        └── Sources
+            └── Myapi
+                ├── objects
+                │   ├── model
+                │   │   └── model.swift
+                │   └── operation
+                │       └── operation.swift
+                ├── routes.swift
+                ├── runtime.swift
+                └── state.swift
 ```
 
 Note that it shouldn't happen that you override your files (thanks to plate's `SafeFile`, which protects against unintended overrides and creates backups).
