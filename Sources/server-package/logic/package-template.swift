@@ -9,34 +9,12 @@ struct PackageTemplate {
                 TemplateFile(
                     name: "state.swift",
                     path: .init(["Sources", config.name]),
-                    content: """
-                    import Server
-                    import plate
-
-                    let config = ServerConfig.externallyManagedProcess(logLevel: .info)
-                    let logger = try? StandardLogger(name: config.name, minimumLevel: config.logLevel)
-                    let activity: HTTPActivityCallback? = try? ServerActivityLog.files(minimumLevel: config.logLevel)
-                    """
+                    content: ServerPackageDefaults.State.latest
                 ),
                 TemplateFile(
                     name: "runtime.swift",
                     path: .init(["Sources", config.name]),
-                    content: """
-                    import Server
-
-                    @main
-                    struct AppRuntime {
-                        static func main() async throws {
-                            let process = ServerProcess(
-                                config: config,
-                                routes: try routes(),
-                                logger: logger,
-                                activity: activity
-                            )
-                            await process.run()
-                        }
-                    }
-                    """
+                    content: ServerPackageDefaults.Runtime.latest
                 ),
                 TemplateFile(
                     name: "routes.swift",

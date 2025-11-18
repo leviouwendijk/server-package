@@ -6,6 +6,7 @@ struct ServerPackageApp: AsyncParsableCommand {
         abstract: "Create new Server-based process",
         subcommands: [
             ServerPackage.self,
+            UpdateDefaults.self,
         ],
         defaultSubcommand: ServerPackage.self
     )
