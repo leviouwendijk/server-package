@@ -15,6 +15,7 @@ struct PackageTemplate {
 
                     let config = ServerConfig.externallyManagedProcess(logLevel: .info)
                     let logger = try? StandardLogger(name: config.name, minimumLevel: config.logLevel)
+                    let activity: HTTPActivityCallback? = try? ServerActivityLog.files(minimumLevel: config.logLevel)
                     """
                 ),
                 TemplateFile(
@@ -29,7 +30,8 @@ struct PackageTemplate {
                             let process = ServerProcess(
                                 config: config,
                                 routes: try routes(),
-                                logger: logger
+                                logger: logger,
+                                activity: activity
                             )
                             await process.run()
                         }
