@@ -11,10 +11,15 @@ struct PackageTemplate {
                     path: .init(["Sources", config.name]),
                     content: ServerPackageDefaults.State.latest
                 ),
+                // TemplateFile(
+                //     name: "runtime.swift",
+                //     path: .init(["Sources", config.name]),
+                //     content: ServerPackageDefaults.Runtime.latest
+                // ),
                 TemplateFile(
-                    name: "runtime.swift",
+                    name: "app.swift",
                     path: .init(["Sources", config.name]),
-                    content: ServerPackageDefaults.Runtime.latest
+                    content: ServerPackageDefaults.App.latest
                 ),
                 TemplateFile(
                     name: "routes.swift",

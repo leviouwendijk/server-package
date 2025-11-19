@@ -42,7 +42,8 @@ enum ServerPackageDefaults {
         }
     }
 
-    enum Runtime {
+    // enum Runtime {
+    enum App {
         static let previous : [TemplateVersion: String] = [
             1: """
             import Server
@@ -74,6 +75,23 @@ enum ServerPackageDefaults {
                 }
             }
             """,
+
+            3: """
+            import Server
+
+            @main
+            struct AppRuntime {
+                static func main() async throws {
+                    let process = ServerProcess(
+                        config: config,
+                        routes: try routes(),
+                        logger: logger,
+                        activity: activity
+                    )
+                    await process.run()
+                }
+            }
+            """
         ]
 
         /// Latest runtime.swift template (the one you showed with `activity` + `logger`).
@@ -81,7 +99,7 @@ enum ServerPackageDefaults {
         import Server
 
         @main
-        struct AppRuntime {
+        struct App {
             static func main() async throws {
                 let process = ServerProcess(
                     config: config,

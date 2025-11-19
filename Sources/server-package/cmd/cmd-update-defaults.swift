@@ -5,19 +5,51 @@ import plate
 /// Which generated file(s) to update.
 enum TemplateFileKind: String, CaseIterable, ExpressibleByArgument {
     case state
-    case runtime
+    // case runtime
+    case app
 
     var filename: String {
         switch self {
         case .state:
             return "state.swift"
-        case .runtime:
-            return "runtime.swift"
+        // case .runtime:
+        //     return "runtime.swift"
+        case .app:
+            return "app.swift"
         }
     }
 
-    func url(in sourceRoot: URL) -> URL {
+    var legacyFilenames: [String] {
+        switch self {
+        case .state:
+            return []
+        case .app:
+            return ["runtime.swift"]
+        }
+    }
+
+    // func url(in sourceRoot: URL) -> URL {
+    //     sourceRoot.appendingPathComponent(filename)
+    // }
+
+    func targetURL(in sourceRoot: URL) -> URL {
         sourceRoot.appendingPathComponent(filename)
+    }
+
+    func resolveExistingURL(in sourceRoot: URL, fm: FileManager = .default) -> URL? {
+        let primary = targetURL(in: sourceRoot)
+        if fm.fileExists(atPath: primary.path) {
+            return primary
+        }
+
+        for name in legacyFilenames {
+            let candidate = sourceRoot.appendingPathComponent(name)
+            if fm.fileExists(atPath: candidate.path) {
+                return candidate
+            }
+        }
+
+        return nil
     }
 }
 
@@ -38,7 +70,11 @@ struct UpdateDefaults: AsyncParsableCommand {
         parsing: .upToNextOption,
         help: "Which files to update (state, runtime). Defaults to both."
     )
-    var files: [TemplateFileKind] = [.state, .runtime]
+    var files: [TemplateFileKind] = [
+        .state, 
+        // .runtime
+        .app
+    ]
 
     @Flag(
         name: .shortAndLong,
@@ -62,7 +98,11 @@ struct UpdateDefaults: AsyncParsableCommand {
             .appendingPathComponent(packageName)
 
         let selected = Set(files)
-        let allKinds: [TemplateFileKind] = [.state, .runtime]
+        let allKinds: [TemplateFileKind] = [
+            .state, 
+            // .runtime
+            .app
+        ]
         let kindsToProcess =
             selected.isEmpty
             ? allKinds
@@ -74,10 +114,17 @@ struct UpdateDefaults: AsyncParsableCommand {
         }
 
         for kind in kindsToProcess {
-            let url = kind.url(in: sourceRoot)
+            guard let existingURL = kind.resolveExistingURL(in: sourceRoot, fm: fm) else {
+                print("Skipping \(kind.rawValue): no file found in \(sourceRoot.path)")
+                continue
+            }
+
+            let targetURL = kind.targetURL(in: sourceRoot)
+
             try updateFile(
                 kind: kind,
-                at: url,
+                existingURL: existingURL,
+                targetURL: targetURL,
                 assumeYes: yes,
                 dryRun: dryRun
             )
@@ -115,10 +162,10 @@ private func templates(for kind: TemplateFileKind) -> TemplateSet {
             previous: ServerPackageDefaults.State.previous,
             latest: ServerPackageDefaults.State.latest
         )
-    case .runtime:
+    case .app:
         return TemplateSet(
-            previous: ServerPackageDefaults.Runtime.previous,
-            latest: ServerPackageDefaults.Runtime.latest
+            previous: ServerPackageDefaults.App.previous,
+            latest: ServerPackageDefaults.App.latest
         )
     }
 }
@@ -143,18 +190,14 @@ private func colorizeDiff(_ diff: String) -> String {
 
 private func updateFile(
     kind: TemplateFileKind,
-    at url: URL,
+    existingURL: URL,
+    targetURL: URL,
     assumeYes: Bool,
     dryRun: Bool
 ) throws {
     let fm = FileManager.default
 
-    guard fm.fileExists(atPath: url.path) else {
-        print("Skipping \(url.path) (file not found)")
-        return
-    }
-
-    let current = try String(contentsOf: url, encoding: .utf8)
+    let current = try String(contentsOf: existingURL, encoding: .utf8)
     let set = templates(for: kind)
     let previous = set.previous
     let latest = set.latest
@@ -162,8 +205,11 @@ private func updateFile(
     let sortedVersions = previous.keys.sorted()
     let latestVersion = (sortedVersions.last ?? 0) + 1
 
-    if current == latest {
-        print("Already up to date: \(url.lastPathComponent) (v\(latestVersion))")
+    let existingName = existingURL.lastPathComponent
+    let targetName = targetURL.lastPathComponent
+
+    if existingURL == targetURL, current == latest {
+        print("Already up to date: \(existingName) (v\(latestVersion))")
         return
     }
 
@@ -171,8 +217,6 @@ private func updateFile(
     let match = previous.first { (_, template) in
         template == current
     }
-
-    let fileName = url.lastPathComponent
 
     let fromVersion: Int?
     let diffOld: String
@@ -183,15 +227,14 @@ private func updateFile(
         fromVersion = v
         diffOld = template
         oldNameLabel = "template v\(v)"
-        print("\n\(fileName): detected known server-package template v\(v) → v\(latestVersion)".ansi(.cyan))
+        print("\n\(existingName): detected known server-package template v\(v) → v\(latestVersion)".ansi(.cyan))
     } else {
         fromVersion = nil
         diffOld = current
         oldNameLabel = "current file"
-        print("\n\(fileName): does not match any known template; diffing against latest template v\(latestVersion).".ansi(.yellow))
+        print("\n\(existingName): does not match any known template; diffing against latest template v\(latestVersion).".ansi(.yellow))
     }
 
-    // Build a simple line diff between "old" and "latest".
     let rawDiff = makeSimpleLineDiff(
         old: diffOld,
         new: latest,
@@ -199,28 +242,42 @@ private func updateFile(
         newName: newNameLabel
     )
 
-    if rawDiff.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-        print("No textual differences detected for \(fileName).")
-        return
-    }
+    let hasTextDiff = !rawDiff.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
 
-    let colored = colorizeDiff(rawDiff)
-    print("")
-    print(colored)
-    print("")
+    if hasTextDiff {
+        let colored = colorizeDiff(rawDiff)
+        print("")
+        print(colored)
+        print("")
+    } else {
+        // No textual diff, but we might still be renaming (runtime.swift -> app.swift).
+        if existingURL != targetURL && !fm.fileExists(atPath: targetURL.path) {
+            print("No content changes, but will create \(targetName) from \(existingName).")
+        } else {
+            print("No textual differences detected for \(existingName).")
+            if existingURL == targetURL {
+                return
+            }
+        }
+    }
 
     if dryRun {
-        print("DRY RUN: no changes written for \(fileName).")
+        print("DRY RUN: no changes written for \(targetName).")
         return
     }
 
-    // Confirmation
+    // Confirmation for writing the new template
     if !assumeYes {
-        print("Apply changes to \(fileName)? (y/N): ", terminator: "")
+        if existingURL == targetURL {
+            print("Apply changes to \(existingName)? (y/N): ", terminator: "")
+        } else {
+            print("Apply changes and write to \(targetName) (from \(existingName))? (y/N): ", terminator: "")
+        }
+
         guard let input = readLine()?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(),
               input == "y" || input == "yes"
         else {
-            print("Skipping \(fileName).")
+            print("Skipping \(existingName).")
             return
         }
     }
@@ -239,12 +296,55 @@ private func updateFile(
         maxBackupSets: 10
     )
 
-    let file = SafeFile(url)
+    // Always write to the canonical target (state.swift / app.swift).
+    let file = SafeFile(targetURL)
     let result = try file.write(latest, options: options)
 
     if let fromVersion {
-        print("Updated \(fileName) from v\(fromVersion) -> v\(latestVersion). \(result)")
+        print("Updated \(targetName) from v\(fromVersion) -> v\(latestVersion). \(result)")
     } else {
-        print("Updated \(fileName) to latest template v\(latestVersion). \(result)")
+        print("Updated \(targetName) to latest template v\(latestVersion). \(result)")
+    }
+
+    // --- extra step: suggest removing runtime.swift if app.swift now exists ---
+
+    // Only relevant for the app entrypoint.
+    guard kind == .app else { return }
+
+    let runtimeURL = targetURL
+        .deletingLastPathComponent()
+        .appendingPathComponent("runtime.swift")
+
+    guard fm.fileExists(atPath: runtimeURL.path) else {
+        return
+    }
+
+    print("")
+    print("You now have app.swift:".ansi(.green))
+    print("  \(targetURL.path)".ansi(.green))
+    print("")
+    print("Which means you can remove runtime.swift:".ansi(.yellow))
+    print("  \(runtimeURL.path)".ansi(.red))
+    print("")
+
+    if dryRun {
+        print("DRY RUN: not removing runtime.swift.")
+        return
+    }
+
+    if assumeYes {
+        try? fm.removeItem(at: runtimeURL)
+        print("Removed runtime.swift.")
+        return
+    }
+
+    print("Remove runtime.swift? (y/N): ", terminator: "")
+    let answer = readLine()?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+
+    if answer == "y" || answer == "yes" {
+        try? fm.removeItem(at: runtimeURL)
+        print("Removed runtime.swift.")
+    } else {
+        print("Keeping runtime.swift.")
     }
 }
