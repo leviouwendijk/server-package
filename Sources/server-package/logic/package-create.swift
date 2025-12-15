@@ -109,6 +109,7 @@ private func generatePackageSwift(
             .package(url: "https://github.com/leviouwendijk/Server.git", branch: "master"),
             .package(url: "https://github.com/leviouwendijk/plate.git", branch: "master"),
 
+            // .package(url: "https://github.com/leviouwendijk/Primitives.git", branch: "master"),
             // .package(url: "https://github.com/leviouwendijk/Structures.git", branch: "master"),
             // .package(url: "https://github.com/leviouwendijk/Extensions.git", branch: "master"),
             // .package(url: "https://github.com/leviouwendijk/Interfaces.git", branch: "master"),
@@ -130,6 +131,7 @@ private func generatePackageSwift(
                     .product(name: "Server", package: "Server"),
                     .product(name: "plate", package: "plate"),
 
+                    // .product(name: "Primitives", package: "Primitives"),
                     // .product(name: "Structures", package: "Structures"),
                     // .product(name: "Extensions", package: "Extensions"),
                     // .product(name: "Interfaces", package: "Interfaces"),
