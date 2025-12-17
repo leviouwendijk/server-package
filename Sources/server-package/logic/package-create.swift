@@ -115,6 +115,7 @@ private func generatePackageSwift(
             // .package(url: "https://github.com/leviouwendijk/Methods.git", branch: "master"),
 
             // .package(url: "https://github.com/leviouwendijk/Variables.git", branch: "master"),
+            // .package(url: "https://github.com/leviouwendijk/Writers.git", branch: "master"), // SafeFile writer
 
             // .package(url: "https://github.com/leviouwendijk/Structures.git", branch: "master"),
             // .package(url: "https://github.com/leviouwendijk/Extensions.git", branch: "master"),
@@ -141,7 +142,9 @@ private func generatePackageSwift(
 
                     // .product(name: "Primitives", package: "Primitives"),
                     // .product(name: "Methods", package: "Methods"),
+
                     // .product(name: "Variables", package: "Variables"),
+                    // .product(name: "Writers", package: "Writers"),
 
                     // .product(name: "Structures", package: "Structures"),
                     // .product(name: "Extensions", package: "Extensions"),

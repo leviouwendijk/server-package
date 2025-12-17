@@ -27,6 +27,7 @@ struct PackageTemplate {
                     content: """
                     // import Foundation
                     import Server
+                    // import Milieu
 
                     public func routes() throws -> [Route] {
                         return []
