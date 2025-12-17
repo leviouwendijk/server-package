@@ -109,7 +109,6 @@ private func generatePackageSwift(
             .package(url: "https://github.com/leviouwendijk/Server.git", branch: "master"),
             .package(url: "https://github.com/leviouwendijk/Milieu.git", branch: "master"),
             .package(url: "https://github.com/leviouwendijk/Loggers.git", branch: "master"),
-            .package(url: "https://github.com/leviouwendijk/plate.git", branch: "master"),
 
             // .package(url: "https://github.com/leviouwendijk/Primitives.git", branch: "master"),
             // .package(url: "https://github.com/leviouwendijk/Methods.git", branch: "master"),
@@ -117,6 +116,7 @@ private func generatePackageSwift(
             // .package(url: "https://github.com/leviouwendijk/Variables.git", branch: "master"),
             // .package(url: "https://github.com/leviouwendijk/Writers.git", branch: "master"), // SafeFile writer
 
+            // .package(url: "https://github.com/leviouwendijk/plate.git", branch: "master"),
             // .package(url: "https://github.com/leviouwendijk/Structures.git", branch: "master"),
             // .package(url: "https://github.com/leviouwendijk/Extensions.git", branch: "master"),
             // .package(url: "https://github.com/leviouwendijk/Interfaces.git", branch: "master"),
@@ -138,7 +138,6 @@ private func generatePackageSwift(
                     .product(name: "Server", package: "Server"),
                     .product(name: "Milieu", package: "Milieu"),
                     .product(name: "Loggers", package: "Loggers"),
-                    .product(name: "plate", package: "plate"),
 
                     // .product(name: "Primitives", package: "Primitives"),
                     // .product(name: "Methods", package: "Methods"),
@@ -146,6 +145,7 @@ private func generatePackageSwift(
                     // .product(name: "Variables", package: "Variables"),
                     // .product(name: "Writers", package: "Writers"),
 
+                    // .product(name: "plate", package: "plate"),
                     // .product(name: "Structures", package: "Structures"),
                     // .product(name: "Extensions", package: "Extensions"),
                     // .product(name: "Interfaces", package: "Interfaces"),
