@@ -25,6 +25,7 @@ enum ServerPackageDefaults {
         /// Latest state.swift template (current default).
         // moved from import plate -> import Loggers (new lib)
         static let latest: String = """
+        import HTTP
         import Server
         import Loggers
 

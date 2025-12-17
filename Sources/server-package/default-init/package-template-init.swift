@@ -26,6 +26,7 @@ struct PackageTemplate {
                     path: .init(["Sources", config.name]),
                     content: """
                     // import Foundation
+                    import HTTP
                     import Server
                     // import Milieu
 
