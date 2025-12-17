@@ -107,9 +107,14 @@ private func generatePackageSwift(
         ],
         dependencies: [
             .package(url: "https://github.com/leviouwendijk/Server.git", branch: "master"),
+            .package(url: "https://github.com/leviouwendijk/Milieu.git", branch: "master"),
             .package(url: "https://github.com/leviouwendijk/plate.git", branch: "master"),
 
             // .package(url: "https://github.com/leviouwendijk/Primitives.git", branch: "master"),
+            // .package(url: "https://github.com/leviouwendijk/Methods.git", branch: "master"),
+
+            // .package(url: "https://github.com/leviouwendijk/Variables.git", branch: "master"),
+
             // .package(url: "https://github.com/leviouwendijk/Structures.git", branch: "master"),
             // .package(url: "https://github.com/leviouwendijk/Extensions.git", branch: "master"),
             // .package(url: "https://github.com/leviouwendijk/Interfaces.git", branch: "master"),
@@ -129,9 +134,13 @@ private func generatePackageSwift(
                 name: "\(packageName)",
                 dependencies: [
                     .product(name: "Server", package: "Server"),
+                    .product(name: "Milieu", package: "Milieu"),
                     .product(name: "plate", package: "plate"),
 
                     // .product(name: "Primitives", package: "Primitives"),
+                    // .product(name: "Methods", package: "Methods"),
+                    // .product(name: "Variables", package: "Variables"),
+
                     // .product(name: "Structures", package: "Structures"),
                     // .product(name: "Extensions", package: "Extensions"),
                     // .product(name: "Interfaces", package: "Interfaces"),
