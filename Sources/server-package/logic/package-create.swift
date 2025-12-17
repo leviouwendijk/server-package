@@ -108,6 +108,7 @@ private func generatePackageSwift(
         dependencies: [
             .package(url: "https://github.com/leviouwendijk/Server.git", branch: "master"),
             .package(url: "https://github.com/leviouwendijk/Milieu.git", branch: "master"),
+            .package(url: "https://github.com/leviouwendijk/Loggers.git", branch: "master"),
             .package(url: "https://github.com/leviouwendijk/plate.git", branch: "master"),
 
             // .package(url: "https://github.com/leviouwendijk/Primitives.git", branch: "master"),
@@ -135,6 +136,7 @@ private func generatePackageSwift(
                 dependencies: [
                     .product(name: "Server", package: "Server"),
                     .product(name: "Milieu", package: "Milieu"),
+                    .product(name: "Loggers", package: "Loggers"),
                     .product(name: "plate", package: "plate"),
 
                     // .product(name: "Primitives", package: "Primitives"),
