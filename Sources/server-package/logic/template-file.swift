@@ -1,9 +1,11 @@
 import Foundation
-import plate
+// import plate
+import Writers
+import Path
 
 struct TemplateFile {
     let name: String
-    let path: ProjectPath
+    let path: StandardPath
     let content: String
     
     func create(in basePath: URL) throws -> URL {

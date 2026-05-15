@@ -1,7 +1,8 @@
 import Foundation
-import plate
+// import plate
 import Interfaces
 import ArgumentParser
+import Writers
 
 func createPackage(config: PackageConfig, skipConfirm: Bool) async throws {
     print("\nCreating package structure...\n")
@@ -61,17 +62,20 @@ func createPackage(config: PackageConfig, skipConfirm: Bool) async throws {
     }
     
     print("✓ Extracted swift-tools-version".ansi(.green))
-    
-    // Generate new Package.swift
-    let packageContent = generatePackageSwift(
+
+    let package_gen_opts = PackageGenerationOptions(
+        style: .dynamic,
         toolsVersionLine: String(toolsVersionLine),
         packageName: config.name,
         macosVersion: "13"
     )
     
-    let safeFile = SafeFile(generatedPackagePath)
-    let package_opts = SafeWriteOptions(
-        overrideExisting: true,
+    // Generate new Package.swift
+    let packageContent = generatePackageSwift(package_gen_opts)
+    
+    let safeFile = StandardWriter(generatedPackagePath)
+    let package_opts = WriteOptions(
+        existingFilePolicy: .overwrite,
         makeBackupOnOverride: true,
         createBackupDirectory: false
     )

@@ -1,5 +1,6 @@
 import Foundation
-import plate
+// import plate
+import Variables
 
 struct PackageConfig {
     let name: String

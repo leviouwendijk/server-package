@@ -1,6 +1,8 @@
 import Foundation
 import ArgumentParser
-import plate
+// import plate
+import Writers
+import Difference
 
 /// Which generated file(s) to update.
 enum TemplateFileKind: String, CaseIterable, ExpressibleByArgument {
@@ -235,12 +237,12 @@ private func updateFile(
         print("\n\(existingName): does not match any known template; diffing against latest template v\(latestVersion).".ansi(.yellow))
     }
 
-    let rawDiff = makeSimpleLineDiff(
+    let rawDiff = WriteDifference.lines(
         old: diffOld,
         new: latest,
         oldName: oldNameLabel,
         newName: newNameLabel
-    )
+    ).string()
 
     let hasTextDiff = !rawDiff.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
 
@@ -282,8 +284,8 @@ private func updateFile(
         }
     }
 
-    let options = SafeWriteOptions(
-        overrideExisting: true,
+    let options = WriteOptions(
+        existingFilePolicy: .overwrite,
         makeBackupOnOverride: true,
         whitespaceOnlyIsBlank: false,
         backupSuffix: "_previous_version.bak",
@@ -297,7 +299,7 @@ private func updateFile(
     )
 
     // Always write to the canonical target (state.swift / app.swift).
-    let file = SafeFile(targetURL)
+    let file = StandardWriter(targetURL)
     let result = try file.write(latest, options: options)
 
     if let fromVersion {

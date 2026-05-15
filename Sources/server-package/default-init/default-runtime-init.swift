@@ -35,6 +35,8 @@ enum ServerPackageDefaults {
             minimumLevel: config.logLevel,
             writeMode: .reset()
         )
+        // use for ip addr aliasing (log anonymization)
+        // let aliasbank = LogAliasBank()
         let activity: HTTPActivityCallback? = try? ServerActivityLog.files(minimumLevel: config.logLevel)
         """
 
