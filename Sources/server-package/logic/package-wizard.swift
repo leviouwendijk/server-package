@@ -6,15 +6,21 @@ struct PackageWizard {
     let defaultVersion: Int
     let defaultStyle: PackageGenerationStyle
     let keepSwiftTests: Bool
+    let throwingProcess: Bool
+    let manifestPolicy: PackageManifestPolicy
 
     init(
         defaultVersion: Int = 1,
         defaultStyle: PackageGenerationStyle = .prose,
-        keepSwiftTests: Bool = false
+        keepSwiftTests: Bool = false,
+        throwingProcess: Bool = false,
+        manifestPolicy: PackageManifestPolicy = .replace
     ) {
         self.defaultVersion = defaultVersion
         self.defaultStyle = defaultStyle
         self.keepSwiftTests = keepSwiftTests
+        self.throwingProcess = throwingProcess
+        self.manifestPolicy = manifestPolicy
     }
 
     func present() async throws {
@@ -32,7 +38,9 @@ struct PackageWizard {
             name: name,
             version: version,
             style: style,
-            keepSwiftTests: keepSwiftTests
+            keepSwiftTests: keepSwiftTests,
+            throwingProcess: throwingProcess,
+            manifestPolicy: manifestPolicy
         )
 
         displaySummary(
@@ -133,6 +141,7 @@ struct PackageWizard {
         print("  Name: \(config.name)")
         print("  Version: v\(config.version)")
         print("  Style: \(config.style.rawValue)")
+        print("  Package.swift: \(config.manifestPolicy.rawValue)")
         print("  Path: \(config.confirmable)")
     }
 

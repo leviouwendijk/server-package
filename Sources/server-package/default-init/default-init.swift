@@ -19,7 +19,9 @@ struct PackageTemplate {
                 TemplateFile(
                     name: "app.swift",
                     path: .init(["Sources", config.name]),
-                    content: ServerPackageDefaults.App.latest
+                    content: ServerPackageDefaults.App.template(
+                        throwingProcess: config.throwingProcess
+                    )
                 ),
                 TemplateFile(
                     name: "routes.swift",

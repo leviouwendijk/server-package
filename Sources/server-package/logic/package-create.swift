@@ -58,7 +58,7 @@ func createPackage(config: PackageConfig, skipConfirm: Bool) async throws {
             "Tests"
         )
 
-    if !config.keepSwiftTests,
+    if !config.shouldKeepSwiftTests,
        FileManager.default.fileExists(
         atPath: defaultTests.path
        ) {
@@ -82,25 +82,77 @@ func createPackage(config: PackageConfig, skipConfirm: Bool) async throws {
     
     print("✓ Extracted swift-tools-version".ansi(.green))
 
-    let package_gen_opts = PackageGenerationOptions(
-        style: config.style,
-        toolsVersionLine: String(toolsVersionLine),
-        packageName: config.name,
-        macosVersion: "13",
-        keepSwiftTests: config.keepSwiftTests
-    )
-    
-    // Generate new Package.swift
-    let packageContent = generatePackageSwift(package_gen_opts)
-    
-    let safeFile = StandardWriter(generatedPackagePath)
-    let package_opts = WriteOptions(
-        existingFilePolicy: .overwrite,
-        makeBackupOnOverride: true,
-        createBackupDirectory: false
-    )
-    try safeFile.write(packageContent, options: package_opts)
-    print("✓ Generated Package.swift".ansi(.green))
+    switch config.manifestPolicy {
+    case .preserve:
+        print(
+            "✓ Preserved SwiftPM Package.swift"
+                .ansi(.green)
+        )
+
+    case .replace,
+         .backup:
+
+        if config.manifestPolicy == .backup {
+            let backupDirectory = config.versionPath
+                .appendingPathComponent(
+                    ".bak",
+                    isDirectory: true
+                )
+
+            try FileManager.default.createDirectory(
+                at: backupDirectory,
+                withIntermediateDirectories: true
+            )
+
+            let backupPackagePath = backupDirectory
+                .appendingPathComponent(
+                    "Package.swift"
+                )
+
+            try generatedContent.write(
+                to: backupPackagePath,
+                atomically: true,
+                encoding: .utf8
+            )
+
+            print(
+                "✓ Archived original Package.swift to .bak/Package.swift"
+                    .ansi(.green)
+            )
+        }
+
+        let package_gen_opts = PackageGenerationOptions(
+            style: config.style,
+            toolsVersionLine: String(toolsVersionLine),
+            packageName: config.name,
+            macosVersion: "13",
+            keepSwiftTests: config.keepSwiftTests
+        )
+
+        let packageContent = generatePackageSwift(
+            package_gen_opts
+        )
+
+        let safeFile = StandardWriter(
+            generatedPackagePath
+        )
+
+        let package_opts = WriteOptions(
+            existingFilePolicy: .overwrite,
+            makeBackupOnOverride: false,
+            createBackupDirectory: false
+        )
+
+        try safeFile.write(
+            packageContent,
+            options: package_opts
+        )
+
+        print(
+            "✓ Generated Package.swift"
+                .ansi(.green)
+        )
+    }
     
     let template = PackageTemplate.standard(for: config)
     try template.files.forEach { file in

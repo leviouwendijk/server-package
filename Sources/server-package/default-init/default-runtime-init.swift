@@ -101,24 +101,37 @@ enum ServerPackageDefaults {
             """
         ]
 
-        /// Latest runtime.swift template (the one you showed with `activity` + `logger`).
-        static let latest: String = """
-        import Server
+        /// Latest app.swift template.
+        static let latest: String =
+            template(
+                throwingProcess: false
+            )
 
-        @main
-        struct App {
-            static func main() async throws {
-                let process = ServerProcess(
-                    config: config,
-                    routes: try routes(),
-                    logger: logger,
-                    activity: activity
-                )
-                // await process.run()
-                try await process.run()
+        static func template(
+            throwingProcess: Bool
+        ) -> String {
+            let run = throwingProcess
+                ? "try await process.throwing.run()"
+                : "await process.run()"
+
+            return """
+            import Server
+
+            @main
+            struct App {
+                static func main() async throws {
+                    let process = ServerProcess(
+                        config: config,
+                        routes: try routes(),
+                        logger: logger,
+                        activity: activity
+                    )
+
+                    \(run)
+                }
             }
+            """
         }
-        """
 
         static var upgradeable: [String] {
             previous.map { $1 }

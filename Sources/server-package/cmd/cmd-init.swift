@@ -2,6 +2,7 @@ import Arguments
 import Foundation
 
 extension PackageGenerationStyle: ArgumentValue {}
+extension PackageManifestPolicy: ArgumentValue {}
 
 struct ServerPackageOptions:
     Sendable,
@@ -13,6 +14,8 @@ struct ServerPackageOptions:
     let version: Int
     let style: PackageGenerationStyle
     let keepSwiftTests: Bool
+    let throwingProcess: Bool
+    let manifestPolicy: PackageManifestPolicy
     let yes: Bool
 
     init(
@@ -30,6 +33,8 @@ struct ServerPackageOptions:
         self.version = arguments.version
         self.style = arguments.style
         self.keepSwiftTests = arguments.keepSwiftTests
+        self.throwingProcess = arguments.throwingProcess
+        self.manifestPolicy = arguments.manifestPolicy
         self.yes = arguments.yes
     }
 
@@ -64,6 +69,19 @@ struct ServerPackageOptions:
         var keepSwiftTests: Bool
 
         @Flag(
+            "throwing-process",
+            help: "Generate the server entrypoint using process.throwing.run()."
+        )
+        var throwingProcess: Bool
+
+        @Opt(
+            "package-manifest",
+            default: .replace,
+            help: "Package.swift handling: replace, backup, or preserve."
+        )
+        var manifestPolicy: PackageManifestPolicy
+
+        @Flag(
             "yes",
             short: "y",
             help: "Skip confirmation prompts."
@@ -89,7 +107,9 @@ enum ServerPackage:
             let wizard = PackageWizard(
                 defaultVersion: options.version,
                 defaultStyle: options.style,
-                keepSwiftTests: options.keepSwiftTests
+                keepSwiftTests: options.keepSwiftTests,
+                throwingProcess: options.throwingProcess,
+                manifestPolicy: options.manifestPolicy
             )
 
             try await wizard.present()
@@ -100,7 +120,9 @@ enum ServerPackage:
             name: name,
             version: options.version,
             style: options.style,
-            keepSwiftTests: options.keepSwiftTests
+            keepSwiftTests: options.keepSwiftTests,
+            throwingProcess: options.throwingProcess,
+            manifestPolicy: options.manifestPolicy
         )
 
         try await createPackage(
