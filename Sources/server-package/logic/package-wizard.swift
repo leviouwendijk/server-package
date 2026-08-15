@@ -1,5 +1,6 @@
 import Arguments
 import Foundation
+import Terminal
 import plate
 
 struct PackageWizard {
@@ -32,7 +33,25 @@ struct PackageWizard {
 
         let name = try promptForName()
         let version = try promptForVersion()
-        let style = try promptForStyle()
+
+        guard let style = try promptForStyle() else {
+            cancel()
+            return
+        }
+
+        guard let throwingProcess =
+            try promptForThrowingProcess()
+        else {
+            cancel()
+            return
+        }
+
+        guard let manifestPolicy =
+            try promptForManifestPolicy()
+        else {
+            cancel()
+            return
+        }
 
         let config = PackageConfig(
             name: name,
@@ -47,10 +66,11 @@ struct PackageWizard {
             config: config
         )
 
-        let confirmed = try promptConfirm()
-
-        guard confirmed else {
-            print("Cancelled")
+        guard Terminal.confirm(
+            "Proceed?",
+            default: .no
+        ) else {
+            cancel()
             return
         }
 
@@ -69,7 +89,8 @@ struct PackageWizard {
         guard let input = readLine(),
               !input.trimmingCharacters(
                 in: .whitespaces
-              ).isEmpty else {
+              ).isEmpty
+        else {
             throw ArgumentValidationError(
                 "Package name required"
             )
@@ -80,14 +101,16 @@ struct PackageWizard {
 
     private func promptForVersion() throws -> Int {
         print(
-            "Version number (default \(defaultVersion)): ",
+            "Version number "
+            + "(default \(defaultVersion)): ",
             terminator: ""
         )
 
         if let input = readLine(),
            !input.isEmpty {
             guard let version = Int(input),
-                  version > 0 else {
+                  version > 0
+            else {
                 throw ArgumentValidationError(
                     "Version must be a positive integer"
                 )
@@ -99,35 +122,89 @@ struct PackageWizard {
         return defaultVersion
     }
 
-    private func promptForStyle() throws -> PackageGenerationStyle {
-        print(
-            "Package.swift style (prose/dynamic, default \(defaultStyle.rawValue)): ",
-            terminator: ""
+    private func promptForStyle()
+        throws -> PackageGenerationStyle?
+    {
+        try Terminal.choose(
+            "Package.swift style",
+            choices: [
+                TerminalMenuItem(
+                    id: PackageGenerationStyle.prose,
+                    title: "Prose",
+                    caption:
+                        "Explicit standard SwiftPM syntax. "
+                        + "Recommended default."
+                ),
+                TerminalMenuItem(
+                    id: PackageGenerationStyle.dynamic,
+                    title: "Dynamic",
+                    caption:
+                        "Helper-based dependency catalog syntax. "
+                        + "Optional and experimental."
+                ),
+            ],
+            default: defaultStyle
         )
+    }
 
-        guard let input = readLine() else {
-            return defaultStyle
-        }
+    private func promptForThrowingProcess()
+        throws -> Bool?
+    {
+        try Terminal.choose(
+            "Process mode",
+            choices: [
+                TerminalMenuItem(
+                    id: false,
+                    title: "Non-throwing",
+                    caption:
+                        "Generate await process.run(). "
+                        + "The process handles and logs "
+                        + "runtime failure."
+                ),
+                TerminalMenuItem(
+                    id: true,
+                    title: "Throwing",
+                    caption:
+                        "Generate try await "
+                        + "process.throwing.run(). "
+                        + "Runtime failure propagates."
+                ),
+            ],
+            default: throwingProcess
+        )
+    }
 
-        let value = input
-            .trimmingCharacters(
-                in: .whitespacesAndNewlines
-            )
-            .lowercased()
-
-        guard !value.isEmpty else {
-            return defaultStyle
-        }
-
-        guard let style = PackageGenerationStyle(
-            rawValue: value
-        ) else {
-            throw ArgumentValidationError(
-                "Style must be either 'prose' or 'dynamic'"
-            )
-        }
-
-        return style
+    private func promptForManifestPolicy()
+        throws -> PackageManifestPolicy?
+    {
+        try Terminal.choose(
+            "Package.swift mutation",
+            choices: [
+                TerminalMenuItem(
+                    id: PackageManifestPolicy.replace,
+                    title: "Replace",
+                    caption:
+                        "Replace SwiftPM's Package.swift "
+                        + "with the generated manifest. "
+                        + "No backup."
+                ),
+                TerminalMenuItem(
+                    id: PackageManifestPolicy.backup,
+                    title: "Backup",
+                    caption:
+                        "Archive the original manifest at "
+                        + ".bak/Package.swift, then replace it."
+                ),
+                TerminalMenuItem(
+                    id: PackageManifestPolicy.preserve,
+                    title: "Preserve",
+                    caption:
+                        "Leave SwiftPM's original "
+                        + "Package.swift untouched."
+                ),
+            ],
+            default: manifestPolicy
+        )
     }
 
     private func displaySummary(
@@ -141,21 +218,29 @@ struct PackageWizard {
         print("  Name: \(config.name)")
         print("  Version: v\(config.version)")
         print("  Style: \(config.style.rawValue)")
-        print("  Package.swift: \(config.manifestPolicy.rawValue)")
-        print("  Path: \(config.confirmable)")
-    }
 
-    private func promptConfirm() throws -> Bool {
         print(
-            "\nProceed? (y/n): ",
-            terminator: ""
+            "  Process: "
+            + (
+                config.throwingProcess
+                ? "throwing"
+                : "non-throwing"
+            )
         )
 
-        guard let input = readLine() else {
-            return false
-        }
+        print(
+            "  Package.swift: "
+            + config.manifestPolicy.rawValue
+        )
 
-        return input.lowercased() == "y"
-            || input.lowercased() == "yes"
+        print(
+            "  Path: \(config.confirmable)"
+        )
+
+        print("")
+    }
+
+    private func cancel() {
+        print("Cancelled")
     }
 }

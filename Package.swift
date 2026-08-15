@@ -17,6 +17,7 @@ let package = Package(
         .package(url: "https://github.com/leviouwendijk/Arguments.git", branch: "master"),
 
         .package(url: "https://github.com/leviouwendijk/Variables.git", branch: "master"),
+        .package(url: "https://github.com/leviouwendijk/Terminal.git", branch: "master"),
 
     ],
     targets: [
@@ -32,7 +33,8 @@ let package = Package(
                 .product(name: "Difference", package: "Difference"),
                 .product(name: "Arguments", package: "Arguments"),
 
-                .product(name: "Variables", package: "Variables")
+                .product(name: "Variables", package: "Variables"),
+                .product(name: "Terminal", package: "Terminal")
             ]
         ),
     ]
