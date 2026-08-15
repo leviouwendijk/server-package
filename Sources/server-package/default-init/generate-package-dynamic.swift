@@ -264,6 +264,12 @@ extension PackageGenerator {
                 platforms: [
                     .macOS(.v\(options.macosVersion.replacingOccurrences(of: ".", with: "")))
                 ],
+                products: [
+                    // .executable(
+                    //     name: "\(options.testExecutableName)",
+                    //     targets: ["\(options.testFlowsTargetName)"]
+                    // ),
+                ],
                 dependencies: [
             \(packageDependencies)
 
@@ -294,6 +300,16 @@ extension PackageGenerator {
                             // .awslabs.AWSSTS,
                         ]
                     ),
+
+                    // .executableTarget(
+                    //     name: "\(options.testFlowsTargetName)",
+                    //     dependencies: [
+                    //         .product(
+                    //             name: "TestFlows",
+                    //             package: "TestFlows"
+                    //         ),
+                    //     ]
+                    // ),
                 ]
             )
 

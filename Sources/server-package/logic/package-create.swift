@@ -53,6 +53,24 @@ func createPackage(config: PackageConfig, skipConfirm: Bool) async throws {
     try? FileManager.default.removeItem(at: defaultFile)
     print("✓ Removed default file".ansi(.green))
 
+    let defaultTests = config.versionPath
+        .appendingPathComponent(
+            "Tests"
+        )
+
+    if FileManager.default.fileExists(
+        atPath: defaultTests.path
+    ) {
+        try FileManager.default.removeItem(
+            at: defaultTests
+        )
+
+        print(
+            "✓ Removed default Tests directory"
+                .ansi(.green)
+        )
+    }
+
     // Extract swift-tools-version from generated Package.swift
     let generatedPackagePath = config.versionPath.appendingPathComponent("Package.swift")
     let generatedContent = try String(contentsOf: generatedPackagePath, encoding: .utf8)

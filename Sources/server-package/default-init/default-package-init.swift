@@ -29,6 +29,25 @@ internal struct PackageGenerationOptions: Sendable, Codable {
         self.packageName = packageName
         self.macosVersion = macosVersion
     }
+
+    var testFlowsTargetName: String {
+        let prefix = String(
+            packageName.prefix(1)
+        ).uppercased()
+
+        let suffix = String(
+            packageName.dropFirst()
+        )
+
+        return prefix
+            + suffix
+            + "TestFlows"
+    }
+
+    var testExecutableName: String {
+        packageName.lowercased()
+            + "test"
+    }
 }
 
 internal func generatePackageSwift(

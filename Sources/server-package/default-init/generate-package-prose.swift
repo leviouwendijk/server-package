@@ -63,6 +63,12 @@ extension PackageGenerator {
                 platforms: [
                     .macOS(.v\(options.macosVersion.replacingOccurrences(of: ".", with: "")))
                 ],
+                products: [
+                    // .executable(
+                    //     name: "\(options.testExecutableName)",
+                    //     targets: ["\(options.testFlowsTargetName)"]
+                    // ),
+                ],
                 dependencies: [
             \(packageDependencies)
 
@@ -93,6 +99,16 @@ extension PackageGenerator {
                             // .product(name: "AWSSTS", package: "aws-sdk-swift"),
                         ]
                     ),
+
+                    // .executableTarget(
+                    //     name: "\(options.testFlowsTargetName)",
+                    //     dependencies: [
+                    //         .product(
+                    //             name: "TestFlows",
+                    //             package: "TestFlows"
+                    //         ),
+                    //     ]
+                    // ),
                 ]
             )
             """
