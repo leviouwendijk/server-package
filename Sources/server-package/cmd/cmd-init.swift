@@ -12,6 +12,7 @@ struct ServerPackageOptions:
     let name: String?
     let version: Int
     let style: PackageGenerationStyle
+    let keepSwiftTests: Bool
     let yes: Bool
 
     init(
@@ -28,6 +29,7 @@ struct ServerPackageOptions:
 
         self.version = arguments.version
         self.style = arguments.style
+        self.keepSwiftTests = arguments.keepSwiftTests
         self.yes = arguments.yes
     }
 
@@ -56,6 +58,12 @@ struct ServerPackageOptions:
         var style: PackageGenerationStyle
 
         @Flag(
+            "keep-swift-tests",
+            help: "Keep SwiftPM's generated Tests directory and test target."
+        )
+        var keepSwiftTests: Bool
+
+        @Flag(
             "yes",
             short: "y",
             help: "Skip confirmation prompts."
@@ -80,7 +88,8 @@ enum ServerPackage:
         guard let name = options.name else {
             let wizard = PackageWizard(
                 defaultVersion: options.version,
-                defaultStyle: options.style
+                defaultStyle: options.style,
+                keepSwiftTests: options.keepSwiftTests
             )
 
             try await wizard.present()
@@ -90,7 +99,8 @@ enum ServerPackage:
         let config = PackageConfig(
             name: name,
             version: options.version,
-            style: options.style
+            style: options.style,
+            keepSwiftTests: options.keepSwiftTests
         )
 
         try await createPackage(

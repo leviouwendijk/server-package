@@ -300,6 +300,7 @@ extension PackageGenerator {
                             // .awslabs.AWSSTS,
                         ]
                     ),
+            \(options.swiftTestsTarget)
 
                     // .executableTarget(
                     //     name: "\(options.testFlowsTargetName)",

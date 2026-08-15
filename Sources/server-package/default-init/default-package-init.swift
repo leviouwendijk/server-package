@@ -17,17 +17,42 @@ internal struct PackageGenerationOptions: Sendable, Codable {
     let toolsVersionLine: String
     let packageName: String
     let macosVersion: String
+    let keepSwiftTests: Bool
     
     init(
         style: PackageGenerationStyle,
         toolsVersionLine: String,
         packageName: String,
-        macosVersion: String
+        macosVersion: String,
+        keepSwiftTests: Bool = false
     ) {
         self.style = style
         self.toolsVersionLine = toolsVersionLine
         self.packageName = packageName
         self.macosVersion = macosVersion
+        self.keepSwiftTests = keepSwiftTests
+    }
+
+    var swiftTestsTargetName: String {
+        packageName
+            + "Tests"
+    }
+
+    var swiftTestsTarget: String {
+        guard keepSwiftTests else {
+            return ""
+        }
+
+        return [
+            "",
+            "        .testTarget(",
+            "            name: \"\(swiftTestsTargetName)\",",
+            "            dependencies: [\"\(packageName)\"]",
+            "        ),",
+        ]
+        .joined(
+            separator: "\n"
+        )
     }
 
     var testFlowsTargetName: String {

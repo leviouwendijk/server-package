@@ -5,13 +5,16 @@ import plate
 struct PackageWizard {
     let defaultVersion: Int
     let defaultStyle: PackageGenerationStyle
+    let keepSwiftTests: Bool
 
     init(
         defaultVersion: Int = 1,
-        defaultStyle: PackageGenerationStyle = .prose
+        defaultStyle: PackageGenerationStyle = .prose,
+        keepSwiftTests: Bool = false
     ) {
         self.defaultVersion = defaultVersion
         self.defaultStyle = defaultStyle
+        self.keepSwiftTests = keepSwiftTests
     }
 
     func present() async throws {
@@ -28,7 +31,8 @@ struct PackageWizard {
         let config = PackageConfig(
             name: name,
             version: version,
-            style: style
+            style: style,
+            keepSwiftTests: keepSwiftTests
         )
 
         displaySummary(

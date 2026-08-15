@@ -99,6 +99,7 @@ extension PackageGenerator {
                             // .product(name: "AWSSTS", package: "aws-sdk-swift"),
                         ]
                     ),
+            \(options.swiftTestsTarget)
 
                     // .executableTarget(
                     //     name: "\(options.testFlowsTargetName)",

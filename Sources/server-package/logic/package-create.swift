@@ -58,9 +58,10 @@ func createPackage(config: PackageConfig, skipConfirm: Bool) async throws {
             "Tests"
         )
 
-    if FileManager.default.fileExists(
+    if !config.keepSwiftTests,
+       FileManager.default.fileExists(
         atPath: defaultTests.path
-    ) {
+       ) {
         try FileManager.default.removeItem(
             at: defaultTests
         )
@@ -85,7 +86,8 @@ func createPackage(config: PackageConfig, skipConfirm: Bool) async throws {
         style: config.style,
         toolsVersionLine: String(toolsVersionLine),
         packageName: config.name,
-        macosVersion: "13"
+        macosVersion: "13",
+        keepSwiftTests: config.keepSwiftTests
     )
     
     // Generate new Package.swift

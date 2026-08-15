@@ -6,6 +6,7 @@ struct PackageConfig {
     let name: String
     let version: Int
     let style: PackageGenerationStyle
+    let keepSwiftTests: Bool
 
     let cwd = URL(
         fileURLWithPath: FileManager.default.currentDirectoryPath
@@ -14,11 +15,13 @@ struct PackageConfig {
     init(
         name: String,
         version: Int = 1,
-        style: PackageGenerationStyle = .prose
+        style: PackageGenerationStyle = .prose,
+        keepSwiftTests: Bool = false
     ) {
         self.name = name
         self.version = version
         self.style = style
+        self.keepSwiftTests = keepSwiftTests
     }
 
     var cwdName: String {
