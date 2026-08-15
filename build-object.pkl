@@ -11,8 +11,8 @@ versions {
     }
 }
 compile {
-    use = false
-    arguments {  }
+    use = true
+    arguments { "--targets" "server-package" }
 }
 details = "package initializer for Server-based binary"
 author = "leviouwendijk"

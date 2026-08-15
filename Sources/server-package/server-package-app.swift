@@ -1,13 +1,15 @@
-import ArgumentParser
+import Arguments
 
-struct ServerPackageApp: AsyncParsableCommand {
-    static let configuration = CommandConfiguration(
-        commandName: "server-package",
-        abstract: "Create new Server-based process",
-        subcommands: [
-            ServerPackage.self,
-            UpdateDefaults.self,
-        ],
-        defaultSubcommand: ServerPackage.self
-    )
+enum ServerPackageApp:
+    ArgumentCommand
+{
+    static let name = "server-package"
+
+    static let defaultChild =
+        ServerPackage.self
+
+    static let children: [ArgumentCommandType] = [
+        ServerPackage.self,
+        UpdateDefaults.self,
+    ]
 }

@@ -1,11 +1,17 @@
+import Arguments
 import Foundation
-import ArgumentParser
 // import plate
 import Writers
 import Difference
 
 /// Which generated file(s) to update.
-enum TemplateFileKind: String, CaseIterable, ExpressibleByArgument {
+enum TemplateFileKind:
+    String,
+    CaseIterable,
+    Sendable,
+    Hashable,
+    ArgumentValue
+{
     case state
     // case runtime
     case app
@@ -14,8 +20,10 @@ enum TemplateFileKind: String, CaseIterable, ExpressibleByArgument {
         switch self {
         case .state:
             return "state.swift"
+
         // case .runtime:
         //     return "runtime.swift"
+
         case .app:
             return "app.swift"
         }
@@ -25,28 +33,45 @@ enum TemplateFileKind: String, CaseIterable, ExpressibleByArgument {
         switch self {
         case .state:
             return []
+
         case .app:
-            return ["runtime.swift"]
+            return [
+                "runtime.swift",
+            ]
         }
     }
 
-    // func url(in sourceRoot: URL) -> URL {
-    //     sourceRoot.appendingPathComponent(filename)
-    // }
-
-    func targetURL(in sourceRoot: URL) -> URL {
-        sourceRoot.appendingPathComponent(filename)
+    func targetURL(
+        in sourceRoot: URL
+    ) -> URL {
+        sourceRoot.appendingPathComponent(
+            filename
+        )
     }
 
-    func resolveExistingURL(in sourceRoot: URL, fm: FileManager = .default) -> URL? {
-        let primary = targetURL(in: sourceRoot)
-        if fm.fileExists(atPath: primary.path) {
+    func resolveExistingURL(
+        in sourceRoot: URL,
+        fm: FileManager = .default
+    ) -> URL? {
+        let primary = targetURL(
+            in: sourceRoot
+        )
+
+        if fm.fileExists(
+            atPath: primary.path
+        ) {
             return primary
         }
 
         for name in legacyFilenames {
-            let candidate = sourceRoot.appendingPathComponent(name)
-            if fm.fileExists(atPath: candidate.path) {
+            let candidate = sourceRoot
+                .appendingPathComponent(
+                    name
+                )
+
+            if fm.fileExists(
+                atPath: candidate.path
+            ) {
                 return candidate
             }
         }
@@ -55,80 +80,138 @@ enum TemplateFileKind: String, CaseIterable, ExpressibleByArgument {
     }
 }
 
-struct UpdateDefaults: AsyncParsableCommand {
-    static let configuration = CommandConfiguration(
-        commandName: "update-defaults",
-        abstract: "Update default Server runtime/state files in an existing package, with diff preview."
-    )
+struct UpdateDefaultsOptions:
+    Sendable,
+    ArgumentParsed
+{
+    typealias ArgumentPayload = Payload
 
-    @Option(
-        name: .shortAndLong,
-        help: "Path to the package root (directory that contains Package.swift). Defaults to current directory."
-    )
-    var root: String?
+    let root: String?
+    let files: [TemplateFileKind]
+    let yes: Bool
+    let dryRun: Bool
 
-    @Option(
-        name: [.short, .customLong("file")],
-        parsing: .upToNextOption,
-        help: "Which files to update (state, runtime). Defaults to both."
-    )
-    var files: [TemplateFileKind] = [
-        .state, 
-        // .runtime
-        .app
-    ]
+    init(
+        arguments: Payload
+    ) throws {
+        self.root = arguments.root
+        self.files = arguments.files
+        self.yes = arguments.yes
+        self.dryRun = arguments.dryRun
+    }
 
-    @Flag(
-        name: .shortAndLong,
-        help: "Skip confirmation prompts and apply all upgrades."
-    )
-    var yes: Bool = false
+    struct Payload: ArgumentGroup {
+        @Opt(
+            "root",
+            short: "r",
+            help: "Package root containing Package.swift. Defaults to the current directory."
+        )
+        var root: String?
 
-    @Flag(
-        name: .shortAndLong,
-        help: "Only show what would change; do not write any files."
-    )
-    var dryRun: Bool = false
+        @Opts(
+            "file",
+            short: "f",
+            take: .many,
+            help: "Files to update: state and/or app. Defaults to all."
+        )
+        var files: [TemplateFileKind]
 
-    mutating func run() async throws {
+        @Flag(
+            "yes",
+            short: "y",
+            help: "Skip confirmation prompts and apply upgrades."
+        )
+        var yes: Bool
+
+        @Flag(
+            "dry-run",
+            help: "Show changes without writing files."
+        )
+        var dryRun: Bool
+
+        init() {}
+    }
+}
+
+enum UpdateDefaults:
+    ParsedArgumentCommand
+{
+    typealias Options = UpdateDefaultsOptions
+
+    static let name = "update-defaults"
+
+    static func run(
+        _ options: UpdateDefaultsOptions,
+        invocation: ParsedInvocation
+    ) async throws {
         let fm = FileManager.default
-        let rootURL = URL(fileURLWithPath: root ?? fm.currentDirectoryPath)
 
-        let packageName = try detectPackageName(at: rootURL)
+        let rootURL = URL(
+            fileURLWithPath:
+                options.root
+                ?? fm.currentDirectoryPath
+        )
+
+        let packageName = try detectPackageName(
+            at: rootURL
+        )
+
         let sourceRoot = rootURL
-            .appendingPathComponent("Sources")
-            .appendingPathComponent(packageName)
+            .appendingPathComponent(
+                "Sources"
+            )
+            .appendingPathComponent(
+                packageName
+            )
 
-        let selected = Set(files)
+        let selected = Set(
+            options.files
+        )
+
         let allKinds: [TemplateFileKind] = [
-            .state, 
-            // .runtime
-            .app
+            .state,
+            .app,
         ]
+
         let kindsToProcess =
             selected.isEmpty
             ? allKinds
-            : allKinds.filter { selected.contains($0) }
+            : allKinds.filter {
+                selected.contains($0)
+            }
 
         if kindsToProcess.isEmpty {
-            print("No files selected for update.")
+            print(
+                "No files selected for update."
+            )
+
             return
         }
 
         for kind in kindsToProcess {
-            guard let existingURL = kind.resolveExistingURL(in: sourceRoot, fm: fm) else {
-                print("Skipping \(kind.rawValue): no file found in \(sourceRoot.path)")
+            guard let existingURL =
+                kind.resolveExistingURL(
+                    in: sourceRoot,
+                    fm: fm
+                )
+            else {
+                print(
+                    "Skipping \(kind.rawValue): no file found in \(sourceRoot.path)"
+                )
+
                 continue
             }
 
-            let targetURL = kind.targetURL(in: sourceRoot)
+            let targetURL = kind.targetURL(
+                in: sourceRoot
+            )
 
             try updateFile(
                 kind: kind,
                 existingURL: existingURL,
                 targetURL: targetURL,
-                assumeYes: yes,
-                dryRun: dryRun
+                assumeYes: options.yes,
+                dryRun: options.dryRun
             )
         }
     }
@@ -141,12 +224,12 @@ private func detectPackageName(at root: URL) throws -> String {
     let contents = try String(contentsOf: packageURL, encoding: .utf8)
 
     guard let range = contents.range(of: "name: \"") else {
-        throw ValidationError("Could not detect package name in Package.swift at \(packageURL.path)")
+        throw ArgumentValidationError("Could not detect package name in Package.swift at \(packageURL.path)")
     }
 
     let start = range.upperBound
     guard let end = contents[start...].firstIndex(of: "\"") else {
-        throw ValidationError("Malformed name line in Package.swift")
+        throw ArgumentValidationError("Malformed name line in Package.swift")
     }
 
     return String(contents[start..<end])

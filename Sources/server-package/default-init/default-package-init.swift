@@ -1,7 +1,13 @@
 // deferred: replace this with a typed Package.swift parser
 // for intelligent modifications, even after initialization
 
-public enum PackageGenerationStyle: Sendable, Codable {
+public enum PackageGenerationStyle:
+    String,
+    Sendable,
+    Codable,
+    CaseIterable,
+    Hashable
+{
     case prose
     case dynamic
 }

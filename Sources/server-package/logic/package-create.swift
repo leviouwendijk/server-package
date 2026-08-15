@@ -1,7 +1,7 @@
 import Foundation
 // import plate
 import Interfaces
-import ArgumentParser
+import Arguments
 import Writers
 
 func createPackage(config: PackageConfig, skipConfirm: Bool) async throws {
@@ -40,7 +40,7 @@ func createPackage(config: PackageConfig, skipConfirm: Bool) async throws {
     )
     
     guard result.exitCode == 0 else {
-        throw ValidationError("swift package init failed with code \(result.exitCode ?? -1)")
+        throw ArgumentValidationError("swift package init failed with code \(result.exitCode ?? -1)")
     }
     
     print("✓ Swift package initialized".ansi(.green))
@@ -58,13 +58,13 @@ func createPackage(config: PackageConfig, skipConfirm: Bool) async throws {
     let generatedContent = try String(contentsOf: generatedPackagePath, encoding: .utf8)
     
     guard let toolsVersionLine = generatedContent.split(separator: "\n").first(where: { $0.contains("swift-tools-version") }) else {
-        throw ValidationError("Could not find swift-tools-version in generated Package.swift")
+        throw ArgumentValidationError("Could not find swift-tools-version in generated Package.swift")
     }
     
     print("✓ Extracted swift-tools-version".ansi(.green))
 
     let package_gen_opts = PackageGenerationOptions(
-        style: .dynamic,
+        style: config.style,
         toolsVersionLine: String(toolsVersionLine),
         packageName: config.name,
         macosVersion: "13"

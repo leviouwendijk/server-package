@@ -1,162 +1,277 @@
-// deferred
+struct ServerPackageDependency {
+    enum DefaultState {
+        case enabled
+        case commented
+    }
 
-// public struct DependencyPackage: Codable, Sendable {
-//     public let package: String
-//     public let product: String
-//     public let enabled: Bool
-    
-//     public init(
-//         package: String,
-//         product: String,
-//         enabled: Bool = false,
-//     ) {
-//         self.package = package
-//         self.product = product
-//         self.enabled = enabled
-//     }
+    let symbol: String
+    let repo: String
+    let package: String
+    let product: String
+    let state: DefaultState
 
-//     public init(
-//         _ sharedName: String,
-//         enabled: Bool = false,
-//     ) {
-//         self.package = sharedName
-//         self.product = sharedName
-//         self.enabled = enabled
-//     }
-// }
+    init(
+        _ name: String,
+        state: DefaultState = .commented
+    ) {
+        self.symbol = name
+        self.repo = name
+        self.package = name
+        self.product = name
+        self.state = state
+    }
 
-// public enum DependencyPackageRenderer {
-//     internal static func indent(_ times: Int) -> String {
-//         let single_indent = 4
-//         let indent_spaces = times * single_indent
-//         return String(repeating: " ", count: indent_spaces)
-//     }
+    init(
+        symbol: String,
+        repo: String,
+        package: String? = nil,
+        product: String? = nil,
+        state: DefaultState = .commented
+    ) {
+        self.symbol = symbol
+        self.repo = repo
+        self.package = package ?? repo
+        self.product = product ?? package ?? repo
+        self.state = state
+    }
+}
 
-//     public enum render {
-//         internal static func combine_string_elements(
-//             indent: Int,
-//             commented_out: Bool,
-//             string_input: String
-//         ) -> [String] {
-//             var res: [String] = []
-//             let spaces = DependencyPackageRenderer.indent(indent)
-//             res.append(spaces)
-//             if commented_out { 
-//                 res.append("// ")
-//             }
-//             res.append(string_input)
-//             return res
-//         }
+struct ServerPackageDependencyGroup {
+    let title: String?
+    let dependencies: [ServerPackageDependency]
+}
 
-//         internal static func package_string(
-//             named name: String,
-//             branch: String = "master"
-//         ) -> String {
-//             return ".package(url: \"https://github.com/leviouwendijk/\(name).git\", branch: \"\(branch)\"),"
-//         }
+enum ServerPackageDependencyCatalog {
+    static let core = ServerPackageDependencyGroup(
+        title: nil,
+        dependencies: [
+            .init("HTTP", state: .enabled),
+            .init("Server", state: .enabled),
+            .init("Milieu", state: .enabled),
+            .init("Loggers", state: .enabled),
+        ]
+    )
 
-//         public static func package(
-//             _ dependency: DependencyPackage,
-//         ) -> String {
-//             let str = package_string(named: dependency.package)
-//             let line = combine_string_elements(
-//                 indent: 2,
-//                 commented_out: !dependency.enabled,
-//                 string_input: str
-//             )
-//             return line.joined()
-//         }
+    static let implementationDefaults = ServerPackageDependencyGroup(
+        title: "implementation defaults",
+        dependencies: [
+            .init("Authentication"),
+            .init("Cryptography"),
+            .init("PostgresConnector"),
+            .init("IO"),
+            .init("Processes"),
+            .init("Assets"),
+            .init("Media"),
+            .init("Agentic"),
+            .init("AgenticAdapters"),
+            .init("AgenticDomains"),
+            .init("AgenticInterfaces"),
+        ]
+    )
 
-//         internal static func product_string(
-//             name: String,
-//             package: String
-//         ) -> String {
-//             return ".product(name: \"\(name)\", package: \"\(package)\"),"
-//         }
+    static let optional = ServerPackageDependencyGroup(
+        title: "other libraries",
+        dependencies: [
+            .init("Accounting"),
+            .init("Allocators"),
+            .init("ANSI"),
+            .init("Arguments"),
+            .init("AWSConnector"),
+            .init("Capture"),
+            .init("Clipboard"),
+            .init("Commerce"),
+            .init("Compositions"),
+            .init("Concatenation"),
+            .init("Constructors"),
+            .init("CSS"),
+            .init("Cynology"),
+            .init("Difference"),
+            .init("Drawingboard"),
+            .init("DSL"),
+            .init("Economics"),
+            .init("Executable"),
+            .init("Extensions"),
+            .init("FileParsers"),
+            .init("FileTypes"),
+            .init("Fuzzy"),
+            .init("Graphical"),
+            .init("HTML"),
+            .init("ICS"),
+            .init("Implementations"),
+            .init("Indentation"),
+            .init("Interfaces"),
+            .init("JS"),
+            .init("LanguageModels"),
+            .init("MacActor"),
+            .init("Mail"),
+            .init("Matching"),
+            .init("Methods"),
+            .init("Musica"),
+            .init("Observability"),
+            .init("Parsers"),
+            .init("Parsing"),
+            .init("Partition"),
+            .init("Path"),
+            .init("plate"),
+            .init("Position"),
+            .init("Primitives"),
+            .init("ProtocolComponents"),
+            .init("PSQL"),
+            .init("Ranking"),
+            .init("Readers"),
+            .init("References"),
+            .init("Registry"),
+            .init("Selection"),
+            .init("Storable"),
+            .init("Strings"),
+            .init("Structures"),
+            .init("Surfaces"),
+            .init("Terminal"),
+            .init("TestFlows"),
+            .init("Tokens"),
+            .init("Vaporized"),
+            .init("Variables"),
+            .init("Version"),
+            .init("ViewComponents"),
+            .init("WebComponents"),
+            .init("Writers"),
+        ]
+    )
 
-//         public static func product(
-//             _ dependency: DependencyPackage,
-//         ) -> String {
-//             let str = product_string(name: dependency.product, package: dependency.package)
-//             let line = combine_string_elements(
-//                 indent: 4,
-//                 commented_out: !dependency.enabled,
-//                 string_input: str
-//             )
-//             return line.joined()
-//         }
-//     }
-// }
+    static let minimal = [
+        core,
+    ]
 
-// internal enum DefaultDependencies {
-//     static let leviouwendijk: [DependencyPackage] = [
-//         .init("HTTP", enabled: true),
-//         .init("Server", enabled: true),
-//         .init("Milieu", enabled: true),
-//         .init("Loggers", enabled: true),
-//         .init("Cryptography"),
+    static let full = [
+        core,
+        implementationDefaults,
+        optional,
+    ]
 
-//         .init("Primitives"),
-//         .init("Methods"),
+    static func flattened(
+        _ groups: [ServerPackageDependencyGroup]
+    ) -> [ServerPackageDependency] {
+        groups.flatMap(\.dependencies)
+    }
+}
 
-//         .init("Variables"),
-//         .init("Writers"),
+enum ServerPackageDependencyRenderer {
+    static func dynamicPackages(
+        _ groups: [ServerPackageDependencyGroup],
+        indentation: Int
+    ) -> String {
+        renderGroups(
+            groups,
+            indentation: indentation
+        ) { dependency in
+            ".leviouwendijk.\(dependency.symbol),"
+        }
+    }
 
-//         .init("Accounting"),
-//         .init("Agentic"),
-//         .init("AgenticAdapters"),
-//         .init("AgenticDomains"),
-//         .init("AgenticInterfaces"),
-//         .init("Allocators"),
-//         .init("ANSI"),
-//         .init("Arguments"),
-//         .init("AWSConnector"),
-//         .init("Capture"),
-//         .init("Clipboard"),
-//         .init("Commerce"),
-//         .init("Compositions"),
-//         .init("Concatenation"),
-//         .init("Constructors"),
-//         .init("CSS"),
-//         .init("Cynology"),
-//         .init("Difference"),
-//         .init("DSL"),
-//         .init("Economics"),
-//         .init("Executable"),
-//         .init("Extensions"),
-//         .init("FileParsers"),
-//         .init("FileTypes"),
-//         .init("Fuzzy"),
-//         .init("Graphical"),
-//         .init("HTML"),
-//         .init("ICS"),
-//         .init("Implementations"),
-//         .init("Indentation"),
-//         .init("Interfaces"),
-//         .init("JS"),
-//         .init("Mail"),
-//         .init("Matching"),
-//         .init("Musica"),
-//         .init("Parsers"),
-//         .init("Parsing"),
-//         .init("Partition"),
-//         .init("Path"),
-//         .init("plate"),
-//         .init("Position"),
-//         .init("PostgresConnector"),
-//         .init("ProtocolComponents"),
-//         .init("PSQL"),
-//         .init("Ranking"),
-//         .init("Readers"),
-//         .init("Registry"),
-//         .init("Selection"),
-//         .init("Storable"),
-//         .init("Strings"),
-//         .init("Terminal"),
-//         .init("TestFlows"),
-//         .init("Tokens"),
-//         .init("Version"),
-//         .init("ViewComponents"),
-//         .init("WebComponents"),
-//     ]
-// }
+    static func dynamicProducts(
+        _ groups: [ServerPackageDependencyGroup],
+        indentation: Int
+    ) -> String {
+        dynamicPackages(
+            groups,
+            indentation: indentation
+        )
+    }
+
+    static func prosePackages(
+        _ groups: [ServerPackageDependencyGroup],
+        indentation: Int
+    ) -> String {
+        renderGroups(
+            groups,
+            indentation: indentation
+        ) { dependency in
+            ".package(url: \"https://github.com/leviouwendijk/\(dependency.repo).git\", branch: \"master\"),"
+        }
+    }
+
+    static func proseProducts(
+        _ groups: [ServerPackageDependencyGroup],
+        indentation: Int
+    ) -> String {
+        renderGroups(
+            groups,
+            indentation: indentation
+        ) { dependency in
+            ".product(name: \"\(dependency.product)\", package: \"\(dependency.package)\"),"
+        }
+    }
+
+    static func dynamicCatalog(
+        _ groups: [ServerPackageDependencyGroup],
+        indentation: Int
+    ) -> String {
+        let prefix = String(
+            repeating: " ",
+            count: indentation
+        )
+
+        return ServerPackageDependencyCatalog
+            .flattened(groups)
+            .map { dependency in
+                if dependency.symbol == dependency.repo,
+                   dependency.package == dependency.repo,
+                   dependency.product == dependency.repo {
+                    return "\(prefix)let \(dependency.symbol) = Deps.Ref(\"\(dependency.repo)\")"
+                }
+
+                return """
+                \(prefix)let \(dependency.symbol) = Deps.Ref(
+                \(prefix)    repo: "\(dependency.repo)",
+                \(prefix)    package: "\(dependency.package)",
+                \(prefix)    product: "\(dependency.product)"
+                \(prefix))
+                """
+            }
+            .joined(
+                separator: "\n"
+            )
+    }
+
+    private static func renderGroups(
+        _ groups: [ServerPackageDependencyGroup],
+        indentation: Int,
+        line: (ServerPackageDependency) -> String
+    ) -> String {
+        let prefix = String(
+            repeating: " ",
+            count: indentation
+        )
+
+        return groups
+            .map { group in
+                var lines: [String] = []
+
+                if let title = group.title {
+                    lines.append(
+                        "\(prefix)// \(title)"
+                    )
+                }
+
+                lines.append(
+                    contentsOf: group.dependencies.map { dependency in
+                        let comment = switch dependency.state {
+                        case .enabled:
+                            ""
+                        case .commented:
+                            "// "
+                        }
+
+                        return "\(prefix)\(comment)\(line(dependency))"
+                    }
+                )
+
+                return lines.joined(
+                    separator: "\n"
+                )
+            }
+            .joined(
+                separator: "\n\n"
+            )
+    }
+}

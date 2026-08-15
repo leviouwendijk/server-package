@@ -1,3 +1,5 @@
+import Foundation
+
 extension PackageGenerator {
     public enum dynamic {
         internal static let deps_block = """
@@ -166,7 +168,22 @@ extension PackageGenerator {
         internal static func minimal(
             _ options: PackageGenerationOptions
         ) -> String {
-            """
+            let packageDependencies = ServerPackageDependencyRenderer.dynamicPackages(
+                ServerPackageDependencyCatalog.minimal,
+                indentation: 8
+            )
+
+            let targetDependencies = ServerPackageDependencyRenderer.dynamicProducts(
+                ServerPackageDependencyCatalog.minimal,
+                indentation: 16
+            )
+
+            let catalog = ServerPackageDependencyRenderer.dynamicCatalog(
+                ServerPackageDependencyCatalog.minimal,
+                indentation: 4
+            )
+
+            return """
             \(options.toolsVersionLine)
 
             import PackageDescription
@@ -177,19 +194,13 @@ extension PackageGenerator {
                     .macOS(.v\(options.macosVersion.replacingOccurrences(of: ".", with: "")))
                 ],
                 dependencies: [
-                    .leviouwendijk.HTTP,
-                    .leviouwendijk.Server,
-                    .leviouwendijk.Milieu,
-                    .leviouwendijk.Loggers,
+            \(packageDependencies)
                 ],
                 targets: [
                     .executableTarget(
                         name: "\(options.packageName)",
                         dependencies: [
-                            .leviouwendijk.HTTP,
-                            .leviouwendijk.Server,
-                            .leviouwendijk.Milieu,
-                            .leviouwendijk.Loggers,
+            \(targetDependencies)
                         ]
                     ),
                 ]
@@ -202,10 +213,7 @@ extension PackageGenerator {
             }
 
             struct LeviOuwendijk {
-                let HTTP = Deps.Ref("HTTP")
-                let Server = Deps.Ref("Server")
-                let Milieu = Deps.Ref("Milieu")
-                let Loggers = Deps.Ref("Loggers")
+            \(catalog)
             }
 
             extension Package.Dependency {
@@ -231,7 +239,22 @@ extension PackageGenerator {
         internal static func full(
             _ options: PackageGenerationOptions
         ) -> String {
-            """
+            let packageDependencies = ServerPackageDependencyRenderer.dynamicPackages(
+                ServerPackageDependencyCatalog.full,
+                indentation: 8
+            )
+
+            let targetDependencies = ServerPackageDependencyRenderer.dynamicProducts(
+                ServerPackageDependencyCatalog.full,
+                indentation: 16
+            )
+
+            let catalog = ServerPackageDependencyRenderer.dynamicCatalog(
+                ServerPackageDependencyCatalog.full,
+                indentation: 4
+            )
+
+            return """
             \(options.toolsVersionLine)
 
             import PackageDescription
@@ -242,74 +265,7 @@ extension PackageGenerator {
                     .macOS(.v\(options.macosVersion.replacingOccurrences(of: ".", with: "")))
                 ],
                 dependencies: [
-                    .leviouwendijk.HTTP,
-                    .leviouwendijk.Server,
-                    .leviouwendijk.Milieu,
-                    .leviouwendijk.Loggers,
-                    // .leviouwendijk.Cryptography,
-
-                    // .leviouwendijk.Primitives,
-                    // .leviouwendijk.Methods,
-
-                    // .leviouwendijk.Variables,
-                    // .leviouwendijk.Writers,
-
-                    // .leviouwendijk.Accounting,
-                    // .leviouwendijk.Agentic,
-                    // .leviouwendijk.AgenticAdapters,
-                    // .leviouwendijk.AgenticDomains,
-                    // .leviouwendijk.AgenticInterfaces,
-                    // .leviouwendijk.Allocators,
-                    // .leviouwendijk.ANSI,
-                    // .leviouwendijk.Arguments,
-                    // .leviouwendijk.AWSConnector,
-                    // .leviouwendijk.Capture,
-                    // .leviouwendijk.Clipboard,
-                    // .leviouwendijk.Commerce,
-                    // .leviouwendijk.Compositions,
-                    // .leviouwendijk.Concatenation,
-                    // .leviouwendijk.Constructors,
-                    // .leviouwendijk.CSS,
-                    // .leviouwendijk.Cynology,
-                    // .leviouwendijk.Difference,
-                    // .leviouwendijk.DSL,
-                    // .leviouwendijk.Economics,
-                    // .leviouwendijk.Executable,
-                    // .leviouwendijk.Extensions,
-                    // .leviouwendijk.FileParsers,
-                    // .leviouwendijk.FileTypes,
-                    // .leviouwendijk.Fuzzy,
-                    // .leviouwendijk.Graphical,
-                    // .leviouwendijk.HTML,
-                    // .leviouwendijk.ICS,
-                    // .leviouwendijk.Implementations,
-                    // .leviouwendijk.Indentation,
-                    // .leviouwendijk.Interfaces,
-                    // .leviouwendijk.JS,
-                    // .leviouwendijk.Mail,
-                    // .leviouwendijk.Matching,
-                    // .leviouwendijk.Musica,
-                    // .leviouwendijk.Parsers,
-                    // .leviouwendijk.Parsing,
-                    // .leviouwendijk.Partition,
-                    // .leviouwendijk.Path,
-                    // .leviouwendijk.plate,
-                    // .leviouwendijk.Position,
-                    // .leviouwendijk.PostgresConnector,
-                    // .leviouwendijk.ProtocolComponents,
-                    // .leviouwendijk.PSQL,
-                    // .leviouwendijk.Ranking,
-                    // .leviouwendijk.Readers,
-                    // .leviouwendijk.Registry,
-                    // .leviouwendijk.Selection,
-                    // .leviouwendijk.Storable,
-                    // .leviouwendijk.Strings,
-                    // .leviouwendijk.Terminal,
-                    // .leviouwendijk.TestFlows,
-                    // .leviouwendijk.Tokens,
-                    // .leviouwendijk.Version,
-                    // .leviouwendijk.ViewComponents,
-                    // .leviouwendijk.WebComponents,
+            \(packageDependencies)
 
                     // .apple.package(Libs.apple.PklSwift, from: "0.2.1"),
 
@@ -320,74 +276,7 @@ extension PackageGenerator {
                     .executableTarget(
                         name: "\(options.packageName)",
                         dependencies: [
-                            .leviouwendijk.HTTP,
-                            .leviouwendijk.Server,
-                            .leviouwendijk.Milieu,
-                            .leviouwendijk.Loggers,
-                            // .leviouwendijk.Cryptography,
-
-                            // .leviouwendijk.Primitives,
-                            // .leviouwendijk.Methods,
-
-                            // .leviouwendijk.Variables,
-                            // .leviouwendijk.Writers,
-
-                            // .leviouwendijk.Accounting,
-                            // .leviouwendijk.Agentic,
-                            // .leviouwendijk.AgenticAdapters,
-                            // .leviouwendijk.AgenticDomains,
-                            // .leviouwendijk.AgenticInterfaces,
-                            // .leviouwendijk.Allocators,
-                            // .leviouwendijk.ANSI,
-                            // .leviouwendijk.Arguments,
-                            // .leviouwendijk.AWSConnector,
-                            // .leviouwendijk.Capture,
-                            // .leviouwendijk.Clipboard,
-                            // .leviouwendijk.Commerce,
-                            // .leviouwendijk.Compositions,
-                            // .leviouwendijk.Concatenation,
-                            // .leviouwendijk.Constructors,
-                            // .leviouwendijk.CSS,
-                            // .leviouwendijk.Cynology,
-                            // .leviouwendijk.Difference,
-                            // .leviouwendijk.DSL,
-                            // .leviouwendijk.Economics,
-                            // .leviouwendijk.Executable,
-                            // .leviouwendijk.Extensions,
-                            // .leviouwendijk.FileParsers,
-                            // .leviouwendijk.FileTypes,
-                            // .leviouwendijk.Fuzzy,
-                            // .leviouwendijk.Graphical,
-                            // .leviouwendijk.HTML,
-                            // .leviouwendijk.ICS,
-                            // .leviouwendijk.Implementations,
-                            // .leviouwendijk.Indentation,
-                            // .leviouwendijk.Interfaces,
-                            // .leviouwendijk.JS,
-                            // .leviouwendijk.Mail,
-                            // .leviouwendijk.Matching,
-                            // .leviouwendijk.Musica,
-                            // .leviouwendijk.Parsers,
-                            // .leviouwendijk.Parsing,
-                            // .leviouwendijk.Partition,
-                            // .leviouwendijk.Path,
-                            // .leviouwendijk.plate,
-                            // .leviouwendijk.Position,
-                            // .leviouwendijk.PostgresConnector,
-                            // .leviouwendijk.ProtocolComponents,
-                            // .leviouwendijk.PSQL,
-                            // .leviouwendijk.Ranking,
-                            // .leviouwendijk.Readers,
-                            // .leviouwendijk.Registry,
-                            // .leviouwendijk.Selection,
-                            // .leviouwendijk.Storable,
-                            // .leviouwendijk.Strings,
-                            // .leviouwendijk.Terminal,
-                            // .leviouwendijk.TestFlows,
-                            // .leviouwendijk.Tokens,
-                            // .leviouwendijk.Version,
-                            // .leviouwendijk.ViewComponents,
-                            // .leviouwendijk.WebComponents,
+            \(targetDependencies)
 
                             // .apple.PklSwift,
 
@@ -418,74 +307,7 @@ extension PackageGenerator {
             }
 
             struct LeviOuwendijk {
-                let HTTP = Deps.Ref("HTTP")
-                let Server = Deps.Ref("Server")
-                let Milieu = Deps.Ref("Milieu")
-                let Loggers = Deps.Ref("Loggers")
-                let Cryptography = Deps.Ref("Cryptography")
-
-                let Primitives = Deps.Ref("Primitives")
-                let Methods = Deps.Ref("Methods")
-
-                let Variables = Deps.Ref("Variables")
-                let Writers = Deps.Ref("Writers")
-
-                let Accounting = Deps.Ref("Accounting")
-                let Agentic = Deps.Ref("Agentic")
-                let AgenticAdapters = Deps.Ref("AgenticAdapters")
-                let AgenticDomains = Deps.Ref("AgenticDomains")
-                let AgenticInterfaces = Deps.Ref("AgenticInterfaces")
-                let Allocators = Deps.Ref("Allocators")
-                let ANSI = Deps.Ref("ANSI")
-                let Arguments = Deps.Ref("Arguments")
-                let AWSConnector = Deps.Ref("AWSConnector")
-                let Capture = Deps.Ref("Capture")
-                let Clipboard = Deps.Ref("Clipboard")
-                let Commerce = Deps.Ref("Commerce")
-                let Compositions = Deps.Ref("Compositions")
-                let Concatenation = Deps.Ref("Concatenation")
-                let Constructors = Deps.Ref("Constructors")
-                let CSS = Deps.Ref("CSS")
-                let Cynology = Deps.Ref("Cynology")
-                let Difference = Deps.Ref("Difference")
-                let DSL = Deps.Ref("DSL")
-                let Economics = Deps.Ref("Economics")
-                let Executable = Deps.Ref("Executable")
-                let Extensions = Deps.Ref("Extensions")
-                let FileParsers = Deps.Ref("FileParsers")
-                let FileTypes = Deps.Ref("FileTypes")
-                let Fuzzy = Deps.Ref("Fuzzy")
-                let Graphical = Deps.Ref("Graphical")
-                let HTML = Deps.Ref("HTML")
-                let ICS = Deps.Ref("ICS")
-                let Implementations = Deps.Ref("Implementations")
-                let Indentation = Deps.Ref("Indentation")
-                let Interfaces = Deps.Ref("Interfaces")
-                let JS = Deps.Ref("JS")
-                let Mail = Deps.Ref("Mail")
-                let Matching = Deps.Ref("Matching")
-                let Musica = Deps.Ref("Musica")
-                let Parsers = Deps.Ref("Parsers")
-                let Parsing = Deps.Ref("Parsing")
-                let Partition = Deps.Ref("Partition")
-                let Path = Deps.Ref("Path")
-                let plate = Deps.Ref("plate")
-                let Position = Deps.Ref("Position")
-                let PostgresConnector = Deps.Ref("PostgresConnector")
-                let ProtocolComponents = Deps.Ref("ProtocolComponents")
-                let PSQL = Deps.Ref("PSQL")
-                let Ranking = Deps.Ref("Ranking")
-                let Readers = Deps.Ref("Readers")
-                let Registry = Deps.Ref("Registry")
-                let Selection = Deps.Ref("Selection")
-                let Storable = Deps.Ref("Storable")
-                let Strings = Deps.Ref("Strings")
-                let Terminal = Deps.Ref("Terminal")
-                let TestFlows = Deps.Ref("TestFlows")
-                let Tokens = Deps.Ref("Tokens")
-                let Version = Deps.Ref("Version")
-                let ViewComponents = Deps.Ref("ViewComponents")
-                let WebComponents = Deps.Ref("WebComponents")
+            \(catalog)
             }
 
             struct Apple {

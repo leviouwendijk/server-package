@@ -59,7 +59,8 @@ enum ServerPackageDefaults {
                         config: config,
                         routes: try routes()
                     )
-                    await process.run()
+                    // await process.run()
+                    try await process.run()
                 }
             }
             """,
@@ -75,7 +76,8 @@ enum ServerPackageDefaults {
                         routes: try routes(),
                         logger: logger
                     )
-                    await process.run()
+                    // await process.run()
+                    try await process.run()
                 }
             }
             """,
@@ -92,7 +94,8 @@ enum ServerPackageDefaults {
                         logger: logger,
                         activity: activity
                     )
-                    await process.run()
+                    // await process.run()
+                    try await process.run()
                 }
             }
             """
@@ -111,7 +114,8 @@ enum ServerPackageDefaults {
                     logger: logger,
                     activity: activity
                 )
-                await process.run()
+                // await process.run()
+                try await process.run()
             }
         }
         """
